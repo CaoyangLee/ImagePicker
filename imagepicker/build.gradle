@@ -34,7 +34,8 @@ dependencies {
     //图片预览
     compile 'com.github.chrisbanes:PhotoView:2.1.3'
     //鲁班压缩
-    compile 'top.zibin:Luban:1.1.8'
+    compile 'top.zibin:Luban-turbo:1.0.0'
+//    compile 'top.zibin:Luban:1.1.8'
     //downloader
     compile 'com.liulishuo.filedownloader:library:1.7.4'
     //viewPager底部圆圈指示器

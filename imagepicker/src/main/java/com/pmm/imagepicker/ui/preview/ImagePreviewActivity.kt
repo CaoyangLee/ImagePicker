@@ -12,11 +12,10 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.pmm.imagepicker.ImageStaticHolder
 import com.pmm.imagepicker.R
-import com.pmm.imagepicker.model.LocalMedia
+import com.pmm.imagepicker.model.ImageData
 import com.pmm.ui.core.activity.BaseActivity
 import com.pmm.ui.core.pager.BaseFragmentStatePagerAdapter
 import com.pmm.ui.core.toolbar.StatusBarManager
@@ -40,9 +39,9 @@ internal class ImagePreviewActivity : BaseActivity() {
         val OUTPUT_ISDONE = "isDone"
 
 
-        fun startPreview(context: Activity, selectImages: List<LocalMedia>, maxSelectNum: Int, position: Int) {
+        fun startPreview(context: Activity, selectImages: List<ImageData>, maxSelectNum: Int, position: Int) {
             val intent = Intent(context, ImagePreviewActivity::class.java)
-            intent.putExtra(EXTRA_PREVIEW_SELECT_LIST, selectImages as ArrayList<LocalMedia>)
+            intent.putExtra(EXTRA_PREVIEW_SELECT_LIST, selectImages as ArrayList<ImageData>)
 
             intent.putExtra(EXTRA_POSITION, position)
             intent.putExtra(EXTRA_MAX_SELECT_NUM, maxSelectNum)
@@ -51,9 +50,9 @@ internal class ImagePreviewActivity : BaseActivity() {
 
 
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-        fun startPreviewWithAnim(context: Activity, selectImages: List<LocalMedia>, maxSelectNum: Int, position: Int, view: View) {
+        fun startPreviewWithAnim(context: Activity, selectImages: List<ImageData>, maxSelectNum: Int, position: Int, view: View) {
             val intent = Intent(context, ImagePreviewActivity::class.java)
-            intent.putExtra(EXTRA_PREVIEW_SELECT_LIST, selectImages as ArrayList<LocalMedia>)
+            intent.putExtra(EXTRA_PREVIEW_SELECT_LIST, selectImages as ArrayList<ImageData>)
 
             intent.putExtra(EXTRA_POSITION, position)
             intent.putExtra(EXTRA_MAX_SELECT_NUM, maxSelectNum)
@@ -65,8 +64,8 @@ internal class ImagePreviewActivity : BaseActivity() {
 
     private var position: Int = 0
     private var maxSelectNum = 1
-    private var images: List<LocalMedia> = ArrayList()//所有图片
-    private var selectImages: ArrayList<LocalMedia> = ArrayList()//选择的图片
+    private var images: List<ImageData> = ArrayList()//所有图片
+    private var selectImages: ArrayList<ImageData> = ArrayList()//选择的图片
 
 
     var isShowBar by Delegates.observable(false) { property, oldValue, newValue ->
@@ -92,7 +91,7 @@ internal class ImagePreviewActivity : BaseActivity() {
     override fun beforeViewAttach(savedInstanceState: Bundle?) {
         //images = getIntent().getParcelableArrayListExtra(EXTRA_PREVIEW_LIST);
         images = ImageStaticHolder.getChooseImages()
-        selectImages = intent.getSerializableExtra(EXTRA_PREVIEW_SELECT_LIST) as ArrayList<LocalMedia>
+        selectImages = intent.getSerializableExtra(EXTRA_PREVIEW_SELECT_LIST) as ArrayList<ImageData>
         maxSelectNum = intent.getIntExtra(EXTRA_MAX_SELECT_NUM, 9)
         position = intent.getIntExtra(EXTRA_POSITION, 1)
     }
@@ -187,7 +186,7 @@ internal class ImagePreviewActivity : BaseActivity() {
     }
 
     inner class SimpleFragmentAdapter(fm: FragmentManager) : BaseFragmentStatePagerAdapter(fm) {
-        override fun getItem(position: Int): Fragment = ImagePreviewFragment.newInstance(images[position].path)
+        override fun getItem(position: Int): Fragment = ImagePreviewFragment.newInstance(images[position].path, images[position].uri)
         override fun getCount(): Int = images.size
     }
 

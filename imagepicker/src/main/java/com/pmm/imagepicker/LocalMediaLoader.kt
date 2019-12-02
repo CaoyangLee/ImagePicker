@@ -1,13 +1,15 @@
 package com.pmm.imagepicker
 
 import android.database.Cursor
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import androidx.fragment.app.FragmentActivity
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
-import com.pmm.imagepicker.model.LocalMedia
+import com.pmm.imagepicker.ktx.getImageContentUri
+import com.pmm.imagepicker.model.ImageData
 import com.pmm.imagepicker.model.LocalMediaFolder
 import java.io.File
 import java.util.*
@@ -45,15 +47,21 @@ internal class LocalMediaLoader(private val activity: FragmentActivity, var type
 
                 val imageFolders = ArrayList<LocalMediaFolder>()//一组文件夹
                 val imageFolder4All = LocalMediaFolder()//全部图片-文件夹
-                val allImages = ArrayList<LocalMedia>()//图片
+                val allImages = ArrayList<ImageData>()//图片
 
                 if (!data.moveToFirst()) {
                     return; }//issue链接：https://github.com/jeasonlzy/ImagePicker/issues/243#issuecomment-380353956
 
                 //while循环
-                while (data.moveToNext()) {
+                do {
                     val path = data.getString(data.getColumnIndex(MediaStore.Images.Media.DATA))// 图片的路径
-                    allImages.add(LocalMedia(path))
+                    val id = data.getInt(data.getColumnIndex(MediaStore.MediaColumns._ID))
+                    val baseUri = Uri.parse("content://media/external/images/media")
+                    val uri = Uri.withAppendedPath(baseUri, "" + id)
+
+//                    val uri = activity.getImageContentUri(path)
+
+                    allImages.add(ImageData(path, uri))
 
 
                     val file = File(path)
@@ -84,25 +92,30 @@ internal class LocalMediaLoader(private val activity: FragmentActivity, var type
                         filename.endsWith(".jpg") or filename.endsWith(".png") || filename.endsWith(".jpeg")
                     }
 
-                    val images = ArrayList<LocalMedia>()
+                    val images = ArrayList<ImageData>()
 
                     for (i in files.indices) {
                         //allImages.add(localMedia);
-                        images.add(LocalMedia(files[i].absolutePath))
+                        val path2 = files[i].absolutePath
+                        val uri2 = activity.getImageContentUri(path2)
+
+                        images.add(ImageData(path2, uri2))
                     }
                     if (images.size > 0) {
                         images.sort()
                         localMediaFolder.images = images
                         localMediaFolder.firstImagePath = images[0].path
+                        localMediaFolder.firstImageUri = images[0].uri
                         localMediaFolder.imageNum = localMediaFolder.images.size
                         imageFolders.add(localMediaFolder)
                     }
-                }
+                } while (data.moveToNext())
 
                 imageFolder4All.images = allImages
                 imageFolder4All.imageNum = imageFolder4All.images.size
                 if (allImages.size != 0) {
                     imageFolder4All.firstImagePath = allImages[0].path
+                    imageFolder4All.firstImageUri = allImages[0].uri
                 }
                 imageFolder4All.name = activity.getString(R.string.all_image)
                 imageFolders.add(imageFolder4All)
@@ -157,9 +170,21 @@ internal class LocalMediaLoader(private val activity: FragmentActivity, var type
         val TYPE_IMAGE = 1
         val TYPE_VIDEO = 2
 
-        private val IMAGE_PROJECTION = arrayOf(MediaStore.Images.Media.DATA, MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.DATE_ADDED, MediaStore.Images.Media._ID)
+        private val IMAGE_PROJECTION = arrayOf(
+                MediaStore.Images.Media._ID,
+                MediaStore.Images.Media.DATA,
+                MediaStore.Images.Media.DISPLAY_NAME,
+                MediaStore.Images.Media.DATE_ADDED,
+                MediaStore.Images.Media._ID)
 
-        private val VIDEO_PROJECTION = arrayOf(MediaStore.Video.Media.DATA, MediaStore.Video.Media.DISPLAY_NAME, MediaStore.Video.Media.DATE_ADDED, MediaStore.Video.Media._ID, MediaStore.Video.Media.DURATION)
+        private val VIDEO_PROJECTION = arrayOf(
+                MediaStore.Images.Media._ID,
+                MediaStore.Video.Media.DATA,
+                MediaStore.Video.Media.DISPLAY_NAME,
+                MediaStore.Video.Media.DATE_ADDED,
+                MediaStore.Video.Media._ID,
+                MediaStore.Video.Media.DURATION)
     }
+
 
 }

@@ -20,6 +20,7 @@ import java.util.*
 
 /**
  * 相机选择
+ * Android 10兼容 @link https://juejin.im/post/5d80edb76fb9a06b1c746176
  */
 internal class CameraSelectorActivity : BaseActivity() {
     companion object {

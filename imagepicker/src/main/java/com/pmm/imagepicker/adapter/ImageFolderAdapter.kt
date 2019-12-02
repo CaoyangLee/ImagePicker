@@ -4,15 +4,14 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.view.View
 import com.pmm.imagepicker.R
-import com.pmm.imagepicker.model.LocalMedia
+import com.pmm.imagepicker.model.ImageData
 import com.pmm.imagepicker.model.LocalMediaFolder
 import com.pmm.ui.core.BaseB
 import com.pmm.ui.core.recyclerview.BaseRecyclerAdapter
 import com.pmm.ui.core.recyclerview.BaseRecyclerViewHolder
-import com.pmm.ui.ktx.load4CenterCrop
 import com.pmm.ui.ktx.click
+import com.pmm.ui.ktx.load4CenterCrop
 import kotlinx.android.synthetic.main.list_item_folder.view.*
-import java.io.File
 
 /**
  * Author:你需要一台永动机
@@ -20,7 +19,7 @@ import java.io.File
  * Description:文件夹适配器
  */
 
-internal typealias FolderClickCallBack = ((index: Int, folderName: String?, images: List<LocalMedia>) -> Unit)?
+internal typealias FolderClickCallBack = ((index: Int, folderName: String?, images: List<ImageData>) -> Unit)?
 
 internal class ImageFolderAdapter(mContext: Context) : BaseRecyclerAdapter<BaseB, LocalMediaFolder>(mContext) {
 
@@ -36,7 +35,7 @@ internal class ImageFolderAdapter(mContext: Context) : BaseRecyclerAdapter<BaseB
         holder.itemView.apply {
             //图片
             this.first_image.load4CenterCrop(
-                    file = File(item.firstImagePath),
+                    uri = item.firstImageUri!!,
                     placeholder = R.drawable.ic_image_24dp
             )
             //文件夹 名称

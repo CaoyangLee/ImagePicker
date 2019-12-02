@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import com.pmm.imagepicker.ImagePicker
+import com.pmm.imagepicker.model.ImageData
 import com.pmm.imagepicker.ui.preview2.ImagePreviewActivity
 import com.pmm.ui.core.recyclerview.decoration.GridItemDecoration
 import com.pmm.ui.core.toolbar.StatusBarManager
@@ -28,7 +29,7 @@ class MainActivity : AppCompatActivity() {
             this.imageActionListener = object : ImageGridAdapter.ImageActionListener {
 
                 override fun onItemClick(position: Int) {
-                    ImagePreviewActivity.start(this@MainActivity, this@apply.dataList, position)
+//                    ImagePreviewActivity.start(this@MainActivity, this@apply.dataList, position)
                 }
 
                 override fun onItemDeleteClick(position: Int) {
@@ -97,7 +98,7 @@ class MainActivity : AppCompatActivity() {
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == RESULT_OK && requestCode == ImagePicker.REQUEST_IMAGE) {
-            val target = data?.getSerializableExtra(ImagePicker.REQUEST_OUTPUT) as List<String>
+            val target = data?.getParcelableArrayListExtra<ImageData>(ImagePicker.REQUEST_OUTPUT)
             mAdapter.addData(target)
         }
     }

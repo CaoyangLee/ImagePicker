@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.pmm.imagepicker.R
 import com.pmm.imagepicker.adapter.FolderClickCallBack
 import com.pmm.imagepicker.adapter.ImageFolderAdapter
-import com.pmm.imagepicker.model.LocalMedia
+import com.pmm.imagepicker.model.ImageData
 import com.pmm.imagepicker.model.LocalMediaFolder
 import com.pmm.ui.core.recyclerview.decoration.LinearItemDecoration
 import com.pmm.ui.ktx.dip2px
@@ -23,7 +23,6 @@ import com.pmm.ui.ktx.getScreenWidth
 import com.pmm.ui.ktx.getStatusBarHeight
 import com.pmm.ui.widget.ToolBarPro
 import java.lang.reflect.Method
-import java.util.ArrayList
 
 /**
  * Author:你需要一台永动机
@@ -35,7 +34,7 @@ internal class FolderWindow(private val context: Context) : PopupWindow() {
     private lateinit var recyclerView: RecyclerView
     private val mAdapter: ImageFolderAdapter by lazy { ImageFolderAdapter(context) }
 
-    var onFolderClickListener: ((folderName: String?, images: List<LocalMedia>) -> Unit)? = null
+    var onFolderClickListener: ((folderName: String?, images: List<ImageData>) -> Unit)? = null
 
     private var isDismiss = false
 

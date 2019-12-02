@@ -13,34 +13,33 @@ import androidx.recyclerview.widget.RecyclerView
 import com.pmm.imagepicker.Config
 import com.pmm.imagepicker.ImageStaticHolder
 import com.pmm.imagepicker.R
-import com.pmm.imagepicker.model.LocalMedia
+import com.pmm.imagepicker.model.ImageData
 import com.pmm.ui.ktx.load4CenterCrop
-import java.io.File
-import java.util.*
+import kotlin.collections.ArrayList
 
 
 internal class ImageListAdapter(
         private var context: Context,
         private val config: Config) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    var images: List<LocalMedia> = ArrayList()
+    var images: List<ImageData> = ArrayList()
         private set
-    private var selectImages: ArrayList<LocalMedia> = ArrayList()
+    private var selectImages: ArrayList<ImageData> = ArrayList()
 
     private var imageSelectChangedListener: OnImageSelectChangedListener? = null
 
-    val selectedImages: List<LocalMedia>
+    val selectedImages: ArrayList<ImageData>
         get() = selectImages
 
 
-    fun bindImages(images: List<LocalMedia>) {
+    fun bindImages(images: List<ImageData>) {
         //讲选中的集合引用 给到appData
         ImageStaticHolder.setChooseImages(images)
         this.images = images
         notifyDataSetChanged()
     }
 
-    fun bindSelectImages(images: ArrayList<LocalMedia>) {
+    fun bindSelectImages(images: ArrayList<ImageData>) {
         this.selectImages = images
         notifyDataSetChanged()
         imageSelectChangedListener?.onChange(selectImages)
@@ -75,7 +74,7 @@ internal class ImageListAdapter(
             val image = images[if (config.enableCamera) position - 1 else position]
 
             contentHolder.picture.load4CenterCrop(
-                    file = File(image.path),
+                    uri = image.uri!!,
                     placeholder = R.drawable.ic_image_24dp
             )
 
@@ -104,7 +103,7 @@ internal class ImageListAdapter(
     }
 
     @SuppressLint("StringFormatMatches")
-    private fun changeCheckboxState(contentHolder: ViewHolder, image: LocalMedia) {
+    private fun changeCheckboxState(contentHolder: ViewHolder, image: ImageData) {
         val isChecked = contentHolder.ivCheckCircle.isActivated
         if (selectImages.size >= config.maxSelectNum && !isChecked) {
             Toast.makeText(context, context.getString(R.string.message_max_num, config.maxSelectNum), Toast.LENGTH_LONG).show()
@@ -124,7 +123,7 @@ internal class ImageListAdapter(
         imageSelectChangedListener?.onChange(selectImages)
     }
 
-    private fun isSelected(image: LocalMedia): Boolean {
+    private fun isSelected(image: ImageData): Boolean {
         for (media in selectImages) {
             if (media.path == image.path) {
                 return true
@@ -150,11 +149,11 @@ internal class ImageListAdapter(
     }
 
     interface OnImageSelectChangedListener {
-        fun onChange(selectImages: List<LocalMedia>)
+        fun onChange(selectImages: List<ImageData>)
 
         fun onTakePhoto()
 
-        fun onPictureClick(media: LocalMedia, position: Int, view: View)
+        fun onPictureClick(media: ImageData, position: Int, view: View)
     }
 
     fun setOnImageSelectChangedListener(imageSelectChangedListener: OnImageSelectChangedListener) {

@@ -13,16 +13,17 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.View
 import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.pmm.imagepicker.*
 import com.pmm.imagepicker.adapter.ImageListAdapter
 import com.pmm.imagepicker.ktx.createCameraFile
+import com.pmm.imagepicker.ktx.getImageContentUri
 import com.pmm.imagepicker.ktx.startActionCapture
-import com.pmm.imagepicker.model.LocalMedia
+import com.pmm.imagepicker.model.ImageData
 import com.pmm.imagepicker.model.LocalMediaFolder
 import com.pmm.imagepicker.ui.preview.ImagePreviewActivity
 import com.pmm.ui.core.activity.BaseActivity
@@ -35,7 +36,7 @@ import kotlinx.android.synthetic.main.activity_imageselector.*
 import top.zibin.luban.Luban
 import top.zibin.luban.OnCompressListener
 import java.io.File
-import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
 
@@ -190,7 +191,7 @@ internal class ImageSelectorActivity : BaseActivity() {
         //recyclerView点击事件
         imageAdapter.setOnImageSelectChangedListener(object : ImageListAdapter.OnImageSelectChangedListener {
             @SuppressLint("SetTextI18n")
-            override fun onChange(selectImages: List<LocalMedia>) {
+            override fun onChange(selectImages: List<ImageData>) {
                 mToolBar.menuText1 {
                     val enable = selectImages.isNotEmpty()
                     if (enable) {
@@ -207,7 +208,7 @@ internal class ImageSelectorActivity : BaseActivity() {
                 startCamera()
             }
 
-            override fun onPictureClick(media: LocalMedia, position: Int, view: View) {
+            override fun onPictureClick(media: ImageData, position: Int, view: View) {
                 when {
                     config.enablePreview -> {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -224,7 +225,7 @@ internal class ImageSelectorActivity : BaseActivity() {
                         }
                     }
                     else -> {
-                        onSelectDone(media.path)
+                        onSingleSelectDone(media)
                     }
                 }
             }
@@ -246,21 +247,21 @@ internal class ImageSelectorActivity : BaseActivity() {
                 if (config.enableCrop) {
                     startCrop(cameraPath)
                 } else {
-                    onSelectDone(cameraPath)
+                    onSingleSelectDone(ImageData(cameraPath ?: "", null))
                 }
             } else if (requestCode == ImagePreviewActivity.REQUEST_PREVIEW) {
                 val isDone = data?.getBooleanExtra(ImagePreviewActivity.OUTPUT_ISDONE, false)
                         ?: false
-                val images = data?.getSerializableExtra(ImagePreviewActivity.OUTPUT_LIST) as List<LocalMedia>
+                val images: ArrayList<ImageData> = data?.getSerializableExtra(ImagePreviewActivity.OUTPUT_LIST) as ArrayList<ImageData>
                 if (isDone) {
                     onSelectDone(images)
                 } else {
                     if (images.isEmpty()) return
-                    imageAdapter.bindSelectImages(images as ArrayList<LocalMedia>)
+                    imageAdapter.bindSelectImages(images as ArrayList<ImageData>)
                 }
             } else if (requestCode == ImageCropActivity.REQUEST_CROP) {
                 val path = data?.getStringExtra(ImageCropActivity.OUTPUT_PATH) ?: ""
-                onSelectDone(path)
+                onSingleSelectDone(ImageData(path, null))
             }
         }
     }
@@ -295,49 +296,48 @@ internal class ImageSelectorActivity : BaseActivity() {
     }
 
     //选择完成
-    private fun onSelectDone(medias: List<LocalMedia>) {
-        val images = ArrayList<String>()
-        for (media in medias) {
-            images.add("${media.path}")
-        }
-        onResult(images)
+    private fun onSelectDone(medias: ArrayList<ImageData>) {
+        onResult(medias)
     }
 
-    fun onSelectDone(path: String?) {
-        val images = ArrayList<String>()
-        images.add("$path")
-        onResult(images)
+    private fun onSingleSelectDone(media: ImageData) {
+        onResult(arrayListOf(media))
     }
 
     //返回图片
-    private fun onResult(images: ArrayList<String>) {
+    private fun onResult(medias: ArrayList<ImageData>) {
         if (isLoadImgIng) return
         isLoadImgIng = true
         if (isUseOrigin) {
-            setResult(Activity.RESULT_OK, Intent().putStringArrayListExtra(ImagePicker.REQUEST_OUTPUT, images))
+            val intent = Intent().putParcelableArrayListExtra(ImagePicker.REQUEST_OUTPUT, medias)
+            setResult(Activity.RESULT_OK, intent)
             onBackPressed()
         } else {
-            compressImage(images)
+            compressImage(medias)
         }
     }
 
     //压缩图片
-    private fun compressImage(photos: ArrayList<String>) {
-        if (photos.size > 9) ProgressDialog.show(this@ImageSelectorActivity, message = "加载中")
-        val newImageList = ArrayList<String>()
+    private fun compressImage(medias: ArrayList<ImageData>) {
+        if (medias.size > 9) ProgressDialog.show(this@ImageSelectorActivity, message = "加载中")
+        val newImageList = ArrayList<ImageData>()
         Luban.with(this)
-                .load(photos)                                   // 传入要压缩的图片列表
+                .load(medias.map { it.uri })                                   // 传入要压缩的图片列表
                 .ignoreBy(100)                            // 忽略不压缩图片的大小
                 .setCompressListener(object : OnCompressListener { //设置回调
                     override fun onStart() {}
 
                     override fun onSuccess(file: File) {
                         //Log.d("weimu", "压缩成功 地址为：$file")
-                        newImageList.add(file.toString())
+                        val path = file.absolutePath
+                        val uri = file.toUri()
+                        val uri2 = this@ImageSelectorActivity.getImageContentUri(path)
+                        newImageList.add(ImageData(file.toString(), uri))
                         //所有图片压缩成功
-                        if (newImageList.size == photos.size) {
+                        if (newImageList.size == medias.size) {
                             ProgressDialog.hide()
-                            setResult(Activity.RESULT_OK, Intent().putStringArrayListExtra(ImagePicker.REQUEST_OUTPUT, newImageList))
+                            val intent = Intent().putParcelableArrayListExtra(ImagePicker.REQUEST_OUTPUT, newImageList)
+                            setResult(Activity.RESULT_OK, intent)
                             onBackPressed()
                         }
                     }

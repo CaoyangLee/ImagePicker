@@ -1,7 +1,6 @@
 package com.pmm.imagepicker
 
-import com.pmm.imagepicker.model.LocalMedia
-import com.pmm.ui.ktx.clearAllContent
+import com.pmm.imagepicker.model.ImageData
 
 /**
  * Author:你需要一台永动机
@@ -10,13 +9,13 @@ import com.pmm.ui.ktx.clearAllContent
  */
 internal object ImageStaticHolder {
     //共享选择图片列表
-    private var chooseImages: ArrayList<LocalMedia> = arrayListOf()
+    private var chooseImages: ArrayList<ImageData> = arrayListOf()
 
-    fun getChooseImages(): List<LocalMedia> {
+    fun getChooseImages(): List<ImageData> {
         return chooseImages
     }
 
-    fun setChooseImages(images: List<LocalMedia>) {
+    fun setChooseImages(images: List<ImageData>) {
         this.chooseImages.clear()
         this.chooseImages.addAll(images)
     }
