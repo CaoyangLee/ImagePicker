@@ -4,14 +4,13 @@ package io.weimu.www.imagepicker.fragment.adapter
 import android.content.Context
 import com.bumptech.glide.Glide
 import com.pmm.imagepicker.model.ImageData
-import com.pmm.ui.core.BaseB
 import com.pmm.ui.core.recyclerview.BaseRecyclerAdapter
 import com.pmm.ui.core.recyclerview.BaseRecyclerViewHolder
 import io.weimu.www.imagepicker.R
 import kotlinx.android.synthetic.main.grid_item_image.view.*
 
 
-class ImageGridAdapter(mContext: Context, var maxImageNumber: Int = 9) : BaseRecyclerAdapter<BaseB, ImageData>(mContext) {
+class ImageGridAdapter(mContext: Context, var maxImageNumber: Int = 9) : BaseRecyclerAdapter<Any, ImageData>(mContext) {
 
 
     var imageActionListener: ImageActionListener? = null
@@ -21,7 +20,7 @@ class ImageGridAdapter(mContext: Context, var maxImageNumber: Int = 9) : BaseRec
     override fun getItemLayoutRes(): Int = R.layout.grid_item_image
 
     override fun itemViewChange(holder: BaseRecyclerViewHolder, position: Int) {
-        val item = getItem(position)
+        val item = getItem(position)?:return
         holder.itemView.apply {
             Glide.with(mContext).asBitmap().load(item.uri).into(this.iv_cover)
             //点击事件

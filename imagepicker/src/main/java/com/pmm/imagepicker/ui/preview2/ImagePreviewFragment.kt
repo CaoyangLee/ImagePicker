@@ -268,7 +268,7 @@ internal class ImagePreviewFragment : BaseFragment() {
             FileHelper.copyFile(sourceFile, saveFile)//直接复制即可
             context.toast("保存成功")
             //让图片可以扫描
-            val filePaths = arrayOf("$picturePath/$target")
+            val filePaths = arrayOf(saveFile)
             val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension("png") ?: ""
             val mimeTypes = arrayOf(mimeType)
             MediaScanner(context).scanFiles(filePaths, mimeTypes)

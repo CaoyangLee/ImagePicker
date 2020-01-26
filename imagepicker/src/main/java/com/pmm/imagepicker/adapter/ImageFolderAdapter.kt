@@ -6,7 +6,6 @@ import android.view.View
 import com.pmm.imagepicker.R
 import com.pmm.imagepicker.model.ImageData
 import com.pmm.imagepicker.model.LocalMediaFolder
-import com.pmm.ui.core.BaseB
 import com.pmm.ui.core.recyclerview.BaseRecyclerAdapter
 import com.pmm.ui.core.recyclerview.BaseRecyclerViewHolder
 import com.pmm.ui.ktx.click
@@ -21,7 +20,7 @@ import kotlinx.android.synthetic.main.list_item_folder.view.*
 
 internal typealias FolderClickCallBack = ((index: Int, folderName: String?, images: List<ImageData>) -> Unit)?
 
-internal class ImageFolderAdapter(mContext: Context) : BaseRecyclerAdapter<BaseB, LocalMediaFolder>(mContext) {
+internal class ImageFolderAdapter(mContext: Context) : BaseRecyclerAdapter<Any, LocalMediaFolder>(mContext) {
 
     override fun getItemLayoutRes(): Int = R.layout.list_item_folder
 
@@ -31,7 +30,7 @@ internal class ImageFolderAdapter(mContext: Context) : BaseRecyclerAdapter<BaseB
 
     @SuppressLint("StringFormatMatches")
     override fun itemViewChange(holder: BaseRecyclerViewHolder, position: Int) {
-        val item = getItem(position)
+        val item = getItem(position)?:return
         holder.itemView.apply {
             //图片
             this.first_image.load4CenterCrop(

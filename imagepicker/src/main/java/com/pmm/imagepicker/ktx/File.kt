@@ -75,7 +75,7 @@ internal fun Activity.createImageUri(): Uri? {
 
 //路径 -> Uri
 internal fun Context.getImageContentUri(path: String): Uri? {
-    val cursor: Cursor? = this.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, arrayOf(MediaStore.Images.Media._ID), MediaStore.Images.Media.DATA + "=? ", arrayOf(path), null)
+    val cursor: Cursor? = this.contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, arrayOf(MediaStore.Images.Media._ID), MediaStore.Images.Media.DATA + "=? ", arrayOf(path), null)
     return if (cursor != null && cursor.moveToFirst()) {
         val id = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns._ID))
         val baseUri = Uri.parse("content://media/external/images/media")
