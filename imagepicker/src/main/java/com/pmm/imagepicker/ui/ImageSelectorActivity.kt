@@ -330,7 +330,7 @@ internal class ImageSelectorActivity : BaseActivity() {
                     override fun onSuccess(file: File) {
                         //Log.d("weimu", "压缩成功 地址为：$file")
                         val path = file.absolutePath
-                        val uri = file.toUri()
+                        val uri = Uri.fromFile(file)
                         val uri2 = this@ImageSelectorActivity.getImageContentUri(path)
                         newImageList.add(ImageData(file.toString(), uri))
                         //所有图片压缩成功
